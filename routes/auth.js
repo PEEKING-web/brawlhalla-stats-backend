@@ -8,40 +8,39 @@ const prisma = new PrismaClient();
 
 // Steam login
 router.get('/steam',
-  passport.authenticate('steam', { failureRedirect: '/' }),
-  (req, res) => {
-    res.redirect('/');
-  }
+  passport.authenticate('steam', { failureRedirect: '/' })
 );
 
-// Steam return callback - SAVE USER TO DB
+// Steam return callback - FIXED VERSION
 router.get('/steam/return',
   passport.authenticate('steam', { failureRedirect: process.env.CLIENT_URL }),
   async (req, res) => {
     try {
-      // Save or update user in database
-      await prisma.user.upsert({
-        where: { steamId: req.user.steamId },
-        update: {
-          displayName: req.user.displayName,
-          avatar: req.user.photos[2]?.value || req.user.photos[0]?.value,
-        },
-        create: {
-          steamId: req.user.steamId,
-          displayName: req.user.displayName,
-          avatar: req.user.photos[2]?.value || req.user.photos[0]?.value,
-        },
+      // Explicitly save session before redirecting
+      req.session.save((err) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.redirect(process.env.CLIENT_URL);
+        }
+        
+        console.log('✅ Session saved, user:', req.user);
+        res.redirect(`${process.env.CLIENT_URL}/auth/success`);
       });
     } catch (error) {
-      console.error('Error saving user:', error);
+      console.error('Error in steam return:', error);
+      res.redirect(process.env.CLIENT_URL);
     }
-    
-    res.redirect(`${process.env.CLIENT_URL}/auth/success`);
   }
 );
 
 // Get current user
 router.get('/user', async (req, res) => {
+  console.log('📍 /auth/user called');
+  console.log('Session ID:', req.sessionID);
+  console.log('Is Authenticated:', req.isAuthenticated());
+  console.log('Session:', req.session);
+  console.log('User:', req.user);
+
   if (req.isAuthenticated()) {
     try {
       const user = await prisma.user.findUnique({
@@ -52,7 +51,7 @@ router.get('/user', async (req, res) => {
         authenticated: true,
         steamId: req.user.steamId,
         displayName: req.user.displayName,
-        avatar: req.user.photos[2]?.value || req.user.photos[0]?.value,
+        avatar: req.user.avatar,
         brawlhallaId: user?.brawlhallaId || null,
       });
     } catch (error) {
@@ -77,14 +76,12 @@ router.post('/link-brawlhalla', async (req, res) => {
   }
 
   try {
-    // Verify the Brawlhalla ID exists
     const response = await axios.get(
       `https://api.brawlhalla.com/player/${brawlhallaId}/stats`,
       { params: { api_key: process.env.BRAWLHALLA_API_KEY } }
     );
 
     if (response.data) {
-      // Update user in database
       await prisma.user.update({
         where: { steamId: req.user.steamId },
         data: { brawlhallaId },
@@ -125,6 +122,7 @@ router.get('/logout', (req, res) => {
     if (err) {
       return res.status(500).json({ error: 'Logout failed' });
     }
+    req.session.destroy();
     res.json({ success: true, message: 'Logged out successfully' });
   });
 });
