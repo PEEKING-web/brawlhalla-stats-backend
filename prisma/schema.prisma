@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(cuid())
+  steamId         String   @unique
+  displayName     String?
+  avatar          String?
+  brawlhallaId    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  favorites       Favorite[]
+  notes           PlayerNote[]
+  trackedPlayers  TrackedPlayer[]
+}
+
+model Favorite {
+  id              String   @id @default(cuid())
+  userId          String
+  brawlhallaId    String
+  playerName      String
+  addedAt         DateTime @default(now())
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, brawlhallaId])
+  @@index([userId])
+}
+
+model PlayerNote {
+  id              String   @id @default(cuid())
+  userId          String
+  brawlhallaId    String
+  playerName      String
+  note            String
+  category        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, brawlhallaId])
+}
+
+model TrackedPlayer {
+  id              String   @id @default(cuid())
+  userId          String
+  brawlhallaId    String
+  playerName      String
+  currentRank     Int?
+  currentRating   Int?
+  lastChecked     DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rankHistory     RankHistory[]
+
+  @@unique([userId, brawlhallaId])
+  @@index([userId])
+}
+
+model RankHistory {
+  id              String   @id @default(cuid())
+  trackedPlayerId String
+  rank            Int
+  rating          Int
+  recordedAt      DateTime @default(now())
+
+  trackedPlayer   TrackedPlayer @relation(fields: [trackedPlayerId], references: [id], onDelete: Cascade)
+
+  @@index([trackedPlayerId])
+  @@index([recordedAt])
+}
