@@ -11,6 +11,9 @@ const trackingRoutes = require('./routes/tracking');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+/* PROXY ADDITION*/
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(cors({
   origin: process.env.CLIENT_URL,
@@ -28,9 +31,7 @@ app.use(session({
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
-  },
-
-  proxy: process.env.NODE_ENV === 'production'
+  }
 }));
 
 app.use(passport.initialize());
