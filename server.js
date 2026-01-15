@@ -11,28 +11,32 @@ const trackingRoutes = require('./routes/tracking');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-/* PROXY ADDITION*/
+// Trust proxy
 app.set('trust proxy', 1);
 
-// Middleware
+// CORS - MUST come before session
 app.use(cors({
   origin: process.env.CLIENT_URL,
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
 
+// Session configuration
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 24 * 60 * 60 * 1000,
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === 'production', // true in production
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-    domain: 'brawlhalla-stats-backend-production.up.railway.app'
-  }
+   
+  },
+  proxy: true // Important for Railway
 }));
 
 app.use(passport.initialize());
@@ -55,4 +59,5 @@ app.get('/', (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Backend server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Client URL: ${process.env.CLIENT_URL}`);
 });
