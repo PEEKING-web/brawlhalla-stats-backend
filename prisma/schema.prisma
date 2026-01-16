@@ -80,7 +80,7 @@ model RankHistory {
   @@index([recordedAt])
 }
 
-Session table for connect-pg-simple
+//Session table for connect-pg-simple
 model Session {
   sid    String   @id @db.VarChar(255)
   sess   Json     @db.Json
