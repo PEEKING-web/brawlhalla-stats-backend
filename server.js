@@ -66,7 +66,7 @@ app.use(session({
     path: '/',  // ⭐ ADD THIS explicitly
   },
   proxy: true,
-  name: 'connect.sid'  // ⭐ CHANGE TO STANDARD NAME
+  name: 'connect.sid'   //  STANDARD NAME
 }));
 
 app.use(passport.initialize());
