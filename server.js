@@ -9,6 +9,7 @@ const authRoutes = require('./routes/auth');
 const favoritesRoutes = require('./routes/favorites');
 const notesRoutes = require('./routes/notes');
 const trackingRoutes = require('./routes/tracking');
+const brawlhallaRoutes = require('./routes/brawlhalla');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -83,6 +84,7 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/auth', authRoutes);
+app.use('/api/brawlhalla', brawlhallaRoutes);
 app.use('/api/favorites', favoritesRoutes);
 app.use('/api/notes', notesRoutes);
 app.use('/api/tracking', trackingRoutes);
