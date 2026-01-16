@@ -30,20 +30,24 @@ pgPool.query('SELECT NOW()', (err, res) => {
   }
 });
 
-// Trust proxy (important for Railway)
+// CRITICAL: Trust proxy BEFORE anything else
 app.set('trust proxy', 1);
 
-// CORS - must be before session
+// CORS - MUST be configured correctly for credentials
 app.use(cors({
   origin: process.env.CLIENT_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['set-cookie']  // ⭐ ADD THIS
 }));
+
+// Handle preflight
+app.options('*', cors());
 
 app.use(express.json());
 
-// Session with PostgreSQL store
+// Session configuration
 app.use(session({
   store: new pgSession({
     pool: pgPool,
@@ -53,23 +57,26 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  rolling: true,  // ⭐ ADD THIS - refreshes session on every request
   cookie: {
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
-    secure: true, // Always true since you're in production
+    secure: true,
     sameSite: 'none',
+    path: '/',  // ⭐ ADD THIS explicitly
   },
   proxy: true,
-  name: 'brawlstats.sid' // Custom session name
+  name: 'connect.sid'  // ⭐ CHANGE TO STANDARD NAME
 }));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Debug middleware (remove in production later)
+// Debug middleware
 app.use((req, res, next) => {
   console.log(`📍 ${req.method} ${req.path}`);
   console.log('🔑 Session ID:', req.sessionID);
+  console.log('🍪 Cookies received:', req.headers.cookie);
   console.log('👤 User:', req.user ? req.user.steamId : 'Not authenticated');
   next();
 });
@@ -85,7 +92,8 @@ app.get('/', (req, res) => {
   res.json({ 
     message: 'Brawlhalla Stats API is running',
     environment: process.env.NODE_ENV || 'development',
-    authenticated: req.isAuthenticated()
+    authenticated: req.isAuthenticated(),
+    sessionID: req.sessionID
   });
 });
 
