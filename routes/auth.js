@@ -24,7 +24,8 @@ router.get('/steam/return',
         }
         
         console.log('✅ Session saved, user:', req.user);
-        res.redirect(`${process.env.CLIENT_URL}/auth/success`);
+        res.redirect(`${process.env.CLIENT_URL}/login/success`);
+
       });
     } catch (error) {
       console.error('Error in steam return:', error);
