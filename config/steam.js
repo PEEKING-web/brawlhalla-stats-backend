@@ -24,8 +24,8 @@ passport.deserializeUser(async (id, done) => {
 passport.use(
   new SteamStrategy(
     {
-      returnURL: `${process.env.BACKEND_URL}/auth/steam/return`,
-      realm: process.env.BACKEND_URL,
+      returnURL: `${process.env.CLIENT_URL}/auth/steam/return`,
+      realm: process.env.CLIENT_URL,
       apiKey: process.env.STEAM_API_KEY
     },
     async (identifier, profile, done) => {
