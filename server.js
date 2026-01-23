@@ -31,20 +31,19 @@ pgPool.query('SELECT NOW()', (err, res) => {
   }
 });
 
-// CRITICAL: Trust proxy BEFORE anything else
+// proxy 
 app.set('trust proxy', 1);
 
-// CORS - MUST be configured correctly for credentials
+// CORS
 app.use(cors({
   origin: process.env.CLIENT_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['set-cookie']  // ADD THIS
+  exposedHeaders: ['set-cookie']  
 }));
 
 // Handle preflight
-//app.options('*', cors()); // express crashing
 
 app.use(express.json());
 
@@ -58,16 +57,16 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  rolling: true,  // ⭐ ADD THIS - refreshes session on every request
+  rolling: true,  
   cookie: {
     maxAge: 24 * 60 * 60 * 1000,
     httpOnly: true,
     secure: true,
     sameSite: 'none',
-    path: '/',  // ⭐ ADD THIS explicitly
+    path: '/', 
   },
   proxy: true,
-  name: 'connect.sid'   //  STANDARD NAME
+  name: 'connect.sid'  
 }));
 
 app.use(passport.initialize());
