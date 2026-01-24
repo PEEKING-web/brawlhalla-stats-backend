@@ -4,12 +4,12 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-// ✅ Serialize ONLY DB user ID
+// Serialize ONLY DB user ID
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
 
-// ✅ Rehydrate user from DB on every request
+// Rehydrate user from DB on every request
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await prisma.user.findUnique({
@@ -32,7 +32,7 @@ passport.use(
       try {
         const steamId = identifier.split('/').pop();
 
-        // ✅ UPSERT user in DB
+        // UPSERT user in DB
         const user = await prisma.user.upsert({
           where: { steamId },
           update: {
@@ -46,7 +46,7 @@ passport.use(
           }
         });
 
-        // ✅ IMPORTANT: pass DB user, NOT Steam profile
+        // pass DB user, NOT Steam profile
         return done(null, user);
       } catch (err) {
         return done(err, null);

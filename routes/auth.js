@@ -11,19 +11,19 @@ router.get('/steam',
   passport.authenticate('steam', { failureRedirect: '/' })
 );
 
-// Steam return callback - FIXED VERSION
+// Steam return callback
 router.get('/steam/return',
   passport.authenticate('steam', { failureRedirect: process.env.CLIENT_URL }),
   async (req, res) => {
     try {
-      // Explicitly save session before redirecting
+      //save session before redirecting
       req.session.save((err) => {
         if (err) {
           console.error('Session save error:', err);
           return res.redirect(process.env.CLIENT_URL);
         }
         
-        console.log('✅ Session saved, user:', req.user);
+        console.log('Session saved, user:', req.user);
         res.redirect(`${process.env.CLIENT_URL}/login/success`);
 
       });
@@ -36,12 +36,6 @@ router.get('/steam/return',
 
 // Get current user
 router.get('/user', async (req, res) => {
-  console.log('📍 /auth/user called');
-  console.log('Session ID:', req.sessionID);
-  console.log('Is Authenticated:', req.isAuthenticated());
-  console.log('Session:', req.session);
-  console.log('User:', req.user);
-
   if (req.isAuthenticated()) {
     try {
       const user = await prisma.user.findUnique({

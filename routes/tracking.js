@@ -41,16 +41,16 @@ function extractRankData(data) {
     return { rank: null, rating: null };
   }
 
-  // Use region_rank (more meaningful than global_rank which is often 0)
+  // Use region_rank
   const rank = data.region_rank || data.global_rank || null;
   const rating = data.rating || null;
 
   if (rating) {
-    console.log(`✅ Found rank: #${rank || 'Unranked'}, rating: ${rating}`);
+    console.log(`Found rank: #${rank || 'Unranked'}, rating: ${rating}`);
     return { rank, rating };
   }
 
-  console.log('⚠️ No ranked data found');
+  console.log('No ranked data found');
   return { rank: null, rating: null };
 }
 
@@ -75,7 +75,7 @@ router.post('/', async (req, res) => {
     let currentRating = null;
 
     try {
-      console.log(`\n🔍 Fetching rank for player ${brawlhallaId}...`);
+      console.log(`\n Fetching rank for player ${brawlhallaId}...`);
       
       const rankedData = await axios.get(
         `https://api.brawlhalla.com/player/${brawlhallaId}/ranked`,
@@ -90,7 +90,7 @@ router.post('/', async (req, res) => {
       currentRating = extracted.rating;
 
     } catch (err) {
-      console.error('❌ API Error:', err.message);
+      console.error('API Error:', err.message);
     }
 
     const tracked = await prisma.trackedPlayer.create({
@@ -111,7 +111,7 @@ router.post('/', async (req, res) => {
           rating: currentRating,
         },
       });
-      console.log('✅ Created rank history');
+      console.log('Created rank history');
     }
 
     res.json({ 
@@ -181,7 +181,7 @@ router.post('/:brawlhallaId/update', async (req, res) => {
       return res.status(404).json({ error: 'Player not tracked' });
     }
 
-    console.log(`\n🔄 Refreshing rank for ${req.params.brawlhallaId}...`);
+    console.log(`\n Refreshing rank for ${req.params.brawlhallaId}...`);
 
     const rankedData = await axios.get(
       `https://api.brawlhalla.com/player/${req.params.brawlhallaId}/ranked`,
@@ -215,7 +215,7 @@ router.post('/:brawlhallaId/update', async (req, res) => {
           rating: newRating,
         },
       });
-      console.log('✅ Rank history updated');
+      console.log('Rank history updated');
     }
 
     res.json({
