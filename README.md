@@ -27,7 +27,6 @@ BrawlStats is a full-stack web application that provides real-time **player stat
 ---
 
 ## 📸 Screenshots
-> Put your screenshots in `assets/`
 
 ![Search](/assets/search.png)
 ![Player Stats](/assets/player-stats.png)
