@@ -31,7 +31,7 @@ pgPool.query('SELECT NOW()', (err, res) => {
   }
 });
 
-// proxy
+// proxy 
 app.set('trust proxy', 1);
 
 // CORS
@@ -40,7 +40,7 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['set-cookie']  // ADD THIS
+  exposedHeaders: ['set-cookie']  
 }));
 
 
@@ -62,7 +62,7 @@ app.use(session({
     httpOnly: true,
     secure: true,
     sameSite: 'none',
-    path: '/',  
+    path: '/', 
   },
   proxy: true,
   name: 'connect.sid'  
